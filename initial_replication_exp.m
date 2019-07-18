@@ -1,5 +1,3 @@
-%%Initial Replication kinetics
-
 %%
 clear all
 close all
@@ -18,47 +16,29 @@ names = {'T7RNAP initiation complex', 'mRNA T7RNAP', 'Ribosomes T7RNAP', ...
 %Initial concentrations
 IPTG = true; %Boolean indicating whether or not IPTG has been added to the medium
 C0 = zeros(1,numElements)+0.001; %Initiating vector containing starting concentrations of all elements, most are zero
-C02 = zeros(1,2);
 C0(14) = (1/Avogadro)/Ecoli_volume *10^9; %Starting concentration of plasmid in nM
 %C0(14) = 1; %Copies of plasmid
-C02(1) = 6;
-C02(2) = 1;
 
 %%Model Calculation
 %ODEsolver that evaluates Initial_Replication_function over time specified by 'tspan'
 %and with initial conditions listed in 'C0'. Additionally, the presence of
 %IPTG is an input variable for the function. 
-% opts = odeset('Stats', 'on');
-% disp('ode15s stats for full model:')
-% tic, [t, y] = ode15s(@(t,C) Initial_Replication_function(C,IPTG), tspan, C0, opts);
-% toc
-% y(:,:) = y(:,:)*10^-9*0.65*10^-15*6.022*10^23; %Convert from concentration to copy number
+opts = odeset('Stats', 'on');
+disp('ode23s stats for full model:')
+tic, [t, y] = ode23s(@(t,C) Initial_Replication_function(C,IPTG), tspan, C0, opts);
+toc
+y(:,:) = y(:,:)*10^-9*0.65*10^-15*6.022*10^23; %Convert from concentration to copy number
 
 %S = sparse([0 0;1 1]); %Construct the sparsity pattern of the Jacobian 
 %opts2 = odeset('Stats', 'on', 'JPattern', S); %Let Matlab know what the
 %sparsity pattern of the Jacobian is
-disp('ode23s stats for reduced model:')
-tic, [t2, y2] = ode23s(@(t,C) Test2_function(C,IPTG), tspan, C02, opts);
-toc
+
 %%
 %Plot concentrations over time
-% figure('Name','Orthogonal Replication');
-% for i = 1:size(y,2)
-%     subplot(4,4,i)
-%     plot(t, y(:,i), 'LineWidth', 2);
-%     title(names(i));
-%     ylabel('Copy number')
-%     xlabel('Time (min)')
-%     grid on
-% end
-
-% names = {'mRNA T7RNAP', 'Ribosomes T7RNAP', 'T7RNAP', 'mRNA DNAP', ... 
-%     'Ribosome DNAP', 'DNAP', 'mRNA GFP', 'Ribosomes GFP', 'GFP', ...
-%     'Plasmid'}; %Names of elements in the model without complexes
-figure('Name','Test');
-for i = 1:size(y2,2)
-    subplot(4,3,i)
-    plot(t2, y2(:,i), 'LineWidth', 2);
+figure('Name','Orthogonal Replication');
+for i = 1:size(y,2)
+    subplot(4,4,i)
+    plot(t, y(:,i), 'LineWidth', 2);
     title(names(i));
     ylabel('Copy number')
     xlabel('Time (min)')
