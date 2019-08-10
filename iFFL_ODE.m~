@@ -1,7 +1,7 @@
 clear all, clc
-%%
-tspan = [0 60*250];
-x0 = ones(6,1).*0.1;
+
+tspan = [0 60*210];
+x0 = zeros(6,1);
 steady_states = zeros(100,1);
 for i = 1:100
     x0(3) = i;
@@ -17,49 +17,27 @@ for i = 1:100
     steady_states_reduced(i,1) = x(end,4);    
 end
 
-analytical_sol = zeros(100,1);
 for i = 1:100
-    analytical_sol(i) = analytical_solution(i,1);
+    c = 1;
+    
 end
 
-figure(1),
 subplot(2,2,1);
 plot(1:100,steady_states)
 xlabel('Copynumber of plasmid')
 ylabel('GFP (nM)')
-ylim([0 1.5])
 title('Full model')
 subplot(2,2,2);
 plot(1:100,steady_states_reduced)
 xlabel('Copynumber of plasmid')
 ylabel('GFP (nM)')
-ylim([0 1.5])
 title('Reduced model')
 subplot(2,2,[3,4])
-plot(1:100,analytical_sol)
+plot(1:100,analytical_sol(1:100))
 xlabel('Copynumber of plasmid')
 ylabel('GFP (nM)')
-ylim([0 1.5])
 title('Steady state solution')
 
-%%
-clc, clear all
-n = 0.5:0.5:2;
-c = 1:100;
-G_values = zeros(length(c),length(n));
-for i = 1:length(n)
-    for ii = 1:length(c)
-        G_values(ii,i) = analytical_solution(c(ii), n(i));
-    end
-end
-
-figure(2),
-plot(c, G_values)
-title('Variation of n')
-xlabel('copynumber')
-ylabel('GFP (nM)')
-ylim([0 5])
-legend('n = 0.5','n = 1', 'n = 1.5', 'n = 2')
 function dxdt = TALE_model(x)
     
     a_T = 1.03; %transcription TALE (nM/min)
@@ -123,8 +101,8 @@ function dxdt = TALE_model_reduced(x, c)
     dxdt = [dmT; dT; dmG; dG];
 end
 
-function G = analytical_solution(c,n)
-    a_T = 1.03; %transcription TALE (nM/min)
+function G = analytical_sol(c)
+     a_T = 1.03; %transcription TALE (nM/min)
     y_m = 0.2; %degradation mRNA (1/min)
     b_T = 0.019; %translation TALE (1/min)
     k_on = 100; %1/(nM*min)
@@ -135,6 +113,7 @@ function G = analytical_solution(c,n)
     b_G = 3.65; %translation GFP
     y_G = log(2)/30; %degradation GFP is only dependent on dilution
     
+    n = 1;
     
     K_d = k_off/k_on;
      
